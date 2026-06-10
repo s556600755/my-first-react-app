@@ -1,37 +1,62 @@
-
 import { useState } from 'react';
+
 function App() {
-  const [input, setInput] = useState('');
-  function handleInputChange(e) {
-    // 透過 e.target.value 抓到使用者最新輸入的字，並更新狀態
-    setInput(e.target.value); 
+  // 狀態 1：用來記錄現在是否要「顯示名單」，初始值是 true (要顯示)
+  const [showList, setShowList] = useState(true);
+
+  // 資料：模擬從後端拿到的員工陣列（裡面放物件）
+  const employees = [
+    { id: 101, name: "小明", role: "前端工程師" },
+    { id: 102, name: "阿華", role: "資深設計師" },
+    { id: 103, name: "小菜", role: "專案經理" }
+  ];
+  console.log(showList)
+
+  // 切換顯示狀態的函式
+  function toggleDisplay() {
+    setShowList(!showList); // ! 代表「反轉」布林值。如果是 true 就變 false，反之亦然
   }
-  function handleClear() {
-    setInput('')
-  }
+
   return (
     <div style={{ padding: '30px', maxWidth: '400px', margin: '0 auto' }}>
-      <h1>Day 4：表單輸入體驗 ✍️</h1>
-      
-      {/* 3. 建立一個輸入框 */}
-      {/* value={text} 讓這個輸入框的值受到 React 的掌控 */}
-      {/* onChange={handleInputChange} 當使用者打字時，馬上執行對應的函式 */}
-      <input 
-        type="text" 
-        value={input} 
-        onChange={handleInputChange} 
-        placeholder="請輸入一些文字..."
-        style={{ padding: '10px', width: '100%', fontSize: '16px', marginBottom: '20px' }}
-      />
+      <h1>Day 5：列表與條件渲染 📋</h1>
 
-      {/* 4. 即時把狀態（text）渲染到畫面上 */}
-      <div style={{ padding: '15px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
-        <h3>你目前輸入的內容是：</h3>
-        <p style={{ color: 'blue', fontSize: '18px', fontWeight: 'bold' }}>
-          {input || "（目前尚未輸入任何內容）"}
-        </p>
-      </div>
-      <button onClick={handleClear}>清除</button>
+      {/* 點擊按鈕，切換顯示/隱藏 */}
+      <button 
+        onClick={toggleDisplay}
+        style={{ padding: '10px', marginBottom: '20px', cursor: 'pointer' }}
+      >
+        {/* 1. 條件渲染：用三元運算子決定按鈕要顯示什麼文字 */}
+        {showList ? "隱藏員工名單" : "顯示員工名單"}
+      </button>
+
+      {/* 2. 條件渲染：如果 showList 是 true，才顯示後面的 <div> */}
+      {showList ? (
+        <div>
+          <h2>員工名單：</h2>
+          
+          {/* 3. 列表渲染：用 map() 把資料逐一轉成 JSX */}
+          {employees.map((employee) => {
+            return (
+              <div 
+                key={employee.id} // 重點！React 要求列表中的每個元素都要有唯一的 key
+                style={{
+                  border: '1px solid #ccc',
+                  padding: '10px',
+                  margin: '10px 0',
+                  borderRadius: '5px',
+                  backgroundColor: employee.role === '資深設計師'?'#fff3cd':'#f9f9f9'
+                }}
+              >
+                <strong>{employee.name}</strong> - {employee.role}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        // 如果 showList 是 false，就顯示這行提示文字
+        <p style={{ color: 'gray', fontStyle: 'italic' }}>名單已被隱藏</p>
+      )}
     </div>
   );
 }
