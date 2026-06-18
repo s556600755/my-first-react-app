@@ -1,56 +1,40 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import Sidebar from './Sidebar';
+import WeatherCard from './WeatherCard';
+
 
 function App() {
-  // 狀態：控制密碼目前是隱藏 "password" 還是顯示 "text"
-  const [passwordType, setPasswordType] = useState("password");
-  
-  // 1. 宣告一個 ref，用來抓取 HTML 中的 input 元素，初始值給 null
-  const inputRef = useRef(null);
+  const [currentCity, setCurrentCity] = useState("台北");
+  const [weatherData, setWeatherData] = useState(null);
+  const [isCelsius, setIsCelsius] = useState(true);
 
-  // 2. 宣告一個 ref，用來在後台默默記錄「使用者看了幾次密碼」，初始值是 0
-  const viewCountRef = useRef(0);
-
-  // 用 useEffect 確保網頁第一次打開時執行
   useEffect(() => {
-    // 3. 超能力二應用：inputRef.current 現在就代表那個真實的 <input> 標籤
-    // 網頁一打開，直接呼叫 .focus() 讓游標在裡面閃爍！
-    inputRef.current.focus();
-  }, []);
-
-  // 切換顯示/隱藏密碼的函式
-  function handleTogglePassword() {
-    if (passwordType === "password") {
-      setPasswordType("text");
-      
-      // 4. 超能力一應用：秘密更新偷看次數，這行執行時，網頁「不會」大費周章重新渲染
-      viewCountRef.current = viewCountRef.current + 1;
-      console.log(`🕵️‍♂️ 密室暗號：使用者至今偷看了 ${viewCountRef.current} 次密碼！`);
-    } else {
-      setPasswordType("password");
-    }
-  }
+    const mockWeatherDatabase = {
+      "台北": { name: "台北", temp: 26, humidity: 65, windSpeed: 12, icon: "⛅" },
+      "台中": { name: "台中", temp: 29, humidity: 55, windSpeed: 8, icon: "☀️" },
+      "高雄": { name: "高雄", temp: 31, humidity: 70, windSpeed: 15, icon: "🌴" },
+      "花蓮": { name: "花蓮", temp: 28, humidity: 60, windSpeed: 10, icon: "🌊" }
+    };
+    setWeatherData(mockWeatherDatabase[currentCity]);
+  }, [currentCity]);
 
   return (
-    <div style={{ padding: '30px', maxWidth: '400px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>Day 11：useRef 暗部操控 🔒</h1>
+
+    <div className={"p-4 md:p-10 bg-slate-100 min-h-screen flex flex-col items-center justify-center gap-5"}>
       
-      <div style={{ display: 'flex', marginBottom: '15px' }}>
-        {/* 5. 重點！使用 ref={inputRef} 綁定，把這個標籤的操控權交給 inputRef */}
-        <input 
-          ref={inputRef}
-          type={passwordType} 
-          placeholder="請輸入密碼..."
-          style={{ flex: 1, padding: '8px', fontSize: '16px' }}
-        />
-        <button onClick={handleTogglePassword} style={{ padding: '8px', cursor: 'pointer' }}>
-          {passwordType === "password" ? "👁️ 顯示" : "🙈 隱藏"}
+      {/* 切換按鈕區 */}
+      <div className={"w-full md:w-[800px] flex justify-end"}>
+        <button className="px-5 py-2.5 bg-violet-500 hover:bg-emerald-600 text-white font-bold rounded-full cursor-pointer shadow-md transition-colors" onClick={() => setIsCelsius(!isCelsius)}>
+          切換為：{isCelsius ? "華氏 °F" : "攝氏 °C"}
         </button>
       </div>
 
-      <p style={{ color: 'gray', fontSize: '14px' }}>
-        提示：打開 F12 Console，看看後台默默紀錄的偷看次數。
-      </p>
-      
+      {/* 主儀表板 */}
+      <div className="flex flex-col md:flex-row w-full  md:w-[800px] bg-white shadow-2xl rounded-2xl overflow-hidden">
+        <Sidebar currentCity={currentCity} onCityChange={setCurrentCity} />
+        <WeatherCard weather={weatherData} isCelsius={isCelsius} />
+      </div>
+
     </div>
   );
 }
