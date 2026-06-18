@@ -1,31 +1,56 @@
-// 1. 引入我們剛剛自己寫好的魔法 Hook
-import useFetch from './useFetch';
+import { useState, useEffect, useRef } from 'react';
 
 function App() {
-  // 2. 一行搞定！直接把網址丟給 useFetch，並解構出我們要的三個狀態
-  const {data , isLoading ,error} = useFetch("https://jsonplaceholder.typicode.com/todos");
+  // 狀態：控制密碼目前是隱藏 "password" 還是顯示 "text"
+  const [passwordType, setPasswordType] = useState("password");
   
-  const todos = data;
-  // 3. UI 渲染邏輯（跟昨天完全一樣）
-  if (isLoading) return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>⏳ 資料載入中...</h2>;
-  if (error) return <h2 style={{ textAlign: 'center', color: 'red', marginTop: '50px' }}>❌ 出錯了：{error}</h2>;
+  // 1. 宣告一個 ref，用來抓取 HTML 中的 input 元素，初始值給 null
+  const inputRef = useRef(null);
+
+  // 2. 宣告一個 ref，用來在後台默默記錄「使用者看了幾次密碼」，初始值是 0
+  const viewCountRef = useRef(0);
+
+  // 用 useEffect 確保網頁第一次打開時執行
+  useEffect(() => {
+    // 3. 超能力二應用：inputRef.current 現在就代表那個真實的 <input> 標籤
+    // 網頁一打開，直接呼叫 .focus() 讓游標在裡面閃爍！
+    inputRef.current.focus();
+  }, []);
+
+  // 切換顯示/隱藏密碼的函式
+  function handleTogglePassword() {
+    if (passwordType === "password") {
+      setPasswordType("text");
+      
+      // 4. 超能力一應用：秘密更新偷看次數，這行執行時，網頁「不會」大費周章重新渲染
+      viewCountRef.current = viewCountRef.current + 1;
+      console.log(`🕵️‍♂️ 密室暗號：使用者至今偷看了 ${viewCountRef.current} 次密碼！`);
+    } else {
+      setPasswordType("password");
+    }
+  }
 
   return (
-    <div style={{ padding: '30px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>Day 10：Custom Hooks 邏輯抽離 ⚡</h1>
-      <h3>遠端聯絡人（使用自訂 useFetch）</h3>
-      <hr />
-
-      <div style={{ marginTop: '20px' }}>
-        {todos.map((todo) => (
-          <div key={todo.id} style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '10px', borderRadius: '6px' }}>
-            <h4>👤 {todo.title}</h4>
-            <p style={{ margin: '0', fontSize: '14px', color: '#666' }}>📧 Email: {}</p>
-            {todo.completed? '✅ 已完成':'未完成'}
-          </div>
-          
-        ))}
+    <div style={{ padding: '30px', maxWidth: '400px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <h1>Day 11：useRef 暗部操控 🔒</h1>
+      
+      <div style={{ display: 'flex', marginBottom: '15px' }}>
+        {/* 5. 重點！使用 ref={inputRef} 綁定，把這個標籤的操控權交給 inputRef */}
+        <input 
+          ref={inputRef}
+          type={passwordType} 
+          placeholder="請輸入密碼..."
+          style={{ flex: 1, padding: '8px', fontSize: '16px' }}
+        />
+        <button onClick={handleTogglePassword} style={{ padding: '8px', cursor: 'pointer' }}>
+          {passwordType === "password" ? "👁️ 顯示" : "🙈 隱藏"}
+        </button>
       </div>
+
+      <p style={{ color: 'gray', fontSize: '14px' }}>
+        提示：打開 F12 Console，看看後台默默紀錄的偷看次數。
+      </p>
+      
     </div>
   );
 }
