@@ -1,41 +1,39 @@
-import { useState, useEffect } from 'react';
-import Sidebar from './Sidebar';
-import WeatherCard from './WeatherCard';
-
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home';
+import About from './pages/About';
 
 function App() {
-  const [currentCity, setCurrentCity] = useState("台北");
-  const [weatherData, setWeatherData] = useState(null);
-  const [isCelsius, setIsCelsius] = useState(true);
-
-  useEffect(() => {
-    const mockWeatherDatabase = {
-      "台北": { name: "台北", temp: 26, humidity: 65, windSpeed: 12, icon: "⛅" },
-      "台中": { name: "台中", temp: 29, humidity: 55, windSpeed: 8, icon: "☀️" },
-      "高雄": { name: "高雄", temp: 31, humidity: 70, windSpeed: 15, icon: "🌴" },
-      "花蓮": { name: "花蓮", temp: 28, humidity: 60, windSpeed: 10, icon: "🌊" }
-    };
-    setWeatherData(mockWeatherDatabase[currentCity]);
-  }, [currentCity]);
-
   return (
+    /* 1. BrowserRouter: 讓整個網站開始支援網址導覽功能 */
+    <BrowserRouter>
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+        
+        {/* 全站通用導覽列 */}
+        <nav className="bg-white shadow-md p-4 flex justify-center gap-6">
+          {/* 💡 注意：在 React Router 中，不要用 <a href="...">，否則會導致網頁重新整理！ 
+              請一律改用 <Link to="...">，這樣才能保持 SPA 的滑順換頁體驗。
+          */}
+          <Link to="/" className="text-lg font-semibold hover:text-sky-500 transition-colors">
+            首頁
+          </Link>
+          <Link to="/about" className="text-lg font-semibold hover:text-sky-500 transition-colors">
+            關於我們
+          </Link>
+        </nav>
 
-    <div className={"p-4 md:p-10 bg-slate-100 min-h-screen flex flex-col items-center justify-center gap-5"}>
-      
-      {/* 切換按鈕區 */}
-      <div className={"w-full md:w-[800px] flex justify-end"}>
-        <button className="px-5 py-2.5 bg-violet-500 hover:bg-emerald-600 text-white font-bold rounded-full cursor-pointer shadow-md transition-colors" onClick={() => setIsCelsius(!isCelsius)}>
-          切換為：{isCelsius ? "華氏 °F" : "攝氏 °C"}
-        </button>
+        {/* 2. Routes & Route: 定義網址與頁面的對照地圖 */}
+        <main className="max-w-4xl mx-auto mt-10 bg-white p-6 rounded-xl shadow-sm">
+          <Routes>
+            {/* 當網址是 / 時，秀出 Home 組件 */}
+            <Route path="/" element={<Home />} />
+            
+            {/* 當網址是 /about 時，秀出 About 組件 */}
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </main>
+
       </div>
-
-      {/* 主儀表板 */}
-      <div className="flex flex-col md:flex-row w-full  md:w-[800px] bg-white shadow-2xl rounded-2xl overflow-hidden">
-        <Sidebar currentCity={currentCity} onCityChange={setCurrentCity} />
-        <WeatherCard weather={weatherData} isCelsius={isCelsius} />
-      </div>
-
-    </div>
+    </BrowserRouter>
   );
 }
 
